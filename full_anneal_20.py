@@ -12,7 +12,7 @@ from utils import *
 from parse import *
 from os.path import *
 
-ITERATIONS = 10 ** 6
+ITERATIONS = 10 ** 5
 
 def anneal_solve_20(G, s):
     curr = {}
@@ -32,14 +32,16 @@ def anneal_solve_20(G, s):
 
     best = (dict(curr), 20)
 
-    T = 100
     G_copy = G.copy()
     for e in list(G_copy.edges.data()):
         if e[2]['stress'] > s / 2:
             G_copy.remove_edge(*e[:2])
 
+    T = 100000
+
+    # start = timeit.default_timer()
+
     for i in range(ITERATIONS):
-        # print(T)
         # if i % 100 == 0:
         #     end = timeit.default_timer()
         #     print("{} out of {}, elapsed time: {}".format(i, ITERATIONS, end - start))
@@ -57,13 +59,12 @@ def anneal_solve_20(G, s):
         swap_1.remove(st1)
 
         curr[st1] = st2_num
-        num_rooms = max(curr.values())
+        num_rooms = max(curr.values()) + 1
 
         curr_happ = calculate_happiness_for_room(st1_room, G) + calculate_happiness_for_room(st2_room, G)
         swap_happ = calculate_happiness_for_room(swap_1, G) + calculate_happiness_for_room(swap_2, G)
 
         delta = swap_happ - curr_happ
-        print(delta)
         # print(delta, st1, st2)
         if delta > 0 and is_valid_solution(curr, G, s, num_rooms):
             # print("in here")
@@ -78,17 +79,19 @@ def anneal_solve_20(G, s):
         else:
             curr[st1] = st1_num
 
-        T *= .99
+        if i % 100 == 0:
+            T *= .99
 
         rooms = reorder_rooms(rooms)
         curr = convert_dictionary(rooms)
         num_rooms = max(curr.values()) + 1
         if is_valid_solution(curr, G, s, num_rooms):
+            print("valid solution")
             happ = calculate_happiness(curr, G)
             if happ > best_happiness:
                 best_happiness = happ
                 best = (dict(curr), num_rooms)
-
+    print(best)
     return best
 
 def reorder_rooms(rooms):
@@ -131,7 +134,9 @@ if __name__ == '__main__':
 
         h = calculate_happiness(D, G)
 
+        print(h, h_o)
+        
         if h > h_o:
             print("improvement on {} ({} vs {}), overwriting...".format(input_path, D_o, D))
-            write_output_file(D, output_path)
+        write_output_file(D, output_path)
         ct += 1
