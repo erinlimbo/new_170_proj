@@ -86,7 +86,6 @@ def anneal_solve_20(G, s):
         curr = convert_dictionary(rooms)
         num_rooms = max(curr.values()) + 1
         if is_valid_solution(curr, G, s, num_rooms):
-            print("valid solution")
             happ = calculate_happiness(curr, G)
             if happ > best_happiness:
                 best_happiness = happ
@@ -135,7 +134,7 @@ if __name__ == '__main__':
         h = calculate_happiness(D, G)
 
         print(h, h_o)
-        
+
         if h > h_o:
             print("improvement on {} ({} vs {}), overwriting...".format(input_path, D_o, D))
         write_output_file(D, output_path)
